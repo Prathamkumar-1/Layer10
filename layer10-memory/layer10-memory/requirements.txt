@@ -1,0 +1,12 @@
+# No third-party packages required for the demo.
+# Everything uses Python 3.10+ standard library.
+#
+# To run with a real LLM (drop the --demo flag):
+#   1. Get a FREE Groq API key at https://console.groq.com (no credit card)
+#   2. export GROQ_API_KEY=gsk_...
+#   3. python3 extract.py --corpus corpus/emails.json --out outputs/extracted.json
+#
+# Model used: llama-3.3-70b-versatile (free on Groq)
+#
+# Optional for future extensions:
+#   pip install numpy sentence-transformers flask

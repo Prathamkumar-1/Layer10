@@ -1,0 +1,8 @@
+# No third-party packages required for the demo.
+# Everything uses Python 3.10+ standard library.
+#
+# To run with a real LLM (drop the --demo flag):
+#   pip install anthropic
+#
+# Optional for future extensions:
+#   pip install numpy sentence-transformers flask

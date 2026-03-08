@@ -1,0 +1,202 @@
+[
+  {
+    "id": "email_001",
+    "message_id": "<20011205.134512.enron@enron.com>",
+    "from": "jeff.skilling@enron.com",
+    "to": ["ken.lay@enron.com", "andy.fastow@enron.com"],
+    "cc": [],
+    "subject": "West Coast Power Project - Go Decision",
+    "date": "2001-12-05T13:45:12Z",
+    "body": "Ken, Andy,\n\nAfter reviewing the risk models with Greg Whalley, I've decided we should move forward with the West Coast Power project. Target capacity is 800 MW. We'll need Andy to close the Raptors financing by end of Q1.\n\nAssigning project lead to Louise Kitchen. She has full authority to negotiate contracts.\n\nLet's not discuss this over email going forward.\n\n- Jeff"
+  },
+  {
+    "id": "email_002",
+    "message_id": "<20011205.151823.enron@enron.com>",
+    "from": "ken.lay@enron.com",
+    "to": ["jeff.skilling@enron.com"],
+    "cc": ["andy.fastow@enron.com"],
+    "subject": "RE: West Coast Power Project - Go Decision",
+    "date": "2001-12-05T15:18:23Z",
+    "body": "Jeff,\n\nAgreed. The Board approved up to $200M for this. Louise is a solid choice. Make sure Greg is looped in on risk limits - we can't have another California situation.\n\nAndy, please get the Raptors structure finalized. I want to see the term sheet before Christmas.\n\nKen"
+  },
+  {
+    "id": "email_003",
+    "message_id": "<20011206.092341.enron@enron.com>",
+    "from": "louise.kitchen@enron.com",
+    "to": ["jeff.skilling@enron.com", "greg.whalley@enron.com"],
+    "cc": ["mark.frevert@enron.com"],
+    "subject": "West Coast Power - initial scope and team",
+    "date": "2001-12-06T09:23:41Z",
+    "body": "Jeff, Greg,\n\nThanks for the vote of confidence. Here's the initial plan:\n\nProject: West Coast Power (internal code: WCP-1)\nTarget: 800 MW by Q3 2002\nBudget: $200M (confirmed with Andy)\nTeam: pulling in Tim Belden for trading strategy, John Lavorato for ops\n\nFirst milestone: counterparty term sheets by Dec 20.\n\nWill keep Greg posted on risk exposure daily.\n\n- Louise"
+  },
+  {
+    "id": "email_004",
+    "message_id": "<20011206.104512.enron@enron.com>",
+    "from": "tim.belden@enron.com",
+    "to": ["louise.kitchen@enron.com"],
+    "cc": [],
+    "subject": "RE: West Coast Power - initial scope and team",
+    "date": "2001-12-06T10:45:12Z",
+    "body": "Louise,\n\nGlad to be on this. Quick flag: I've been talking to regulators in Sacramento about load scheduling constraints. The 800 MW target may be aggressive given transmission limits out of Oregon. We might need to revise down to 600 MW or look at Nevada routing.\n\nLet me set up a call with Greg before we commit the term sheets.\n\n- Tim"
+  },
+  {
+    "id": "email_005",
+    "message_id": "<20011207.083012.enron@enron.com>",
+    "from": "greg.whalley@enron.com",
+    "to": ["louise.kitchen@enron.com", "tim.belden@enron.com"],
+    "cc": ["jeff.skilling@enron.com"],
+    "subject": "WCP-1 Risk Review",
+    "date": "2001-12-07T08:30:12Z",
+    "body": "Louise, Tim,\n\nReviewed Tim's transmission concern. Risk committee met this morning. Decision: we hold at 800 MW but add a Nevada corridor option as fallback. If transmission is constrained by Feb 1, we automatically drop to 620 MW.\n\nThis is now locked in as the project risk envelope. Greg"
+  },
+  {
+    "id": "email_006",
+    "message_id": "<20011207.143300.enron@enron.com>",
+    "from": "andy.fastow@enron.com",
+    "to": ["jeff.skilling@enron.com", "ken.lay@enron.com"],
+    "cc": [],
+    "subject": "Raptors financing - term sheet attached",
+    "date": "2001-12-07T14:33:00Z",
+    "body": "Jeff, Ken,\n\nTerm sheet for Raptors III is ready. Structure: $180M SPE with Enron stock as collateral. Closes Dec 28 if we sign by Dec 15.\n\nOne issue: LJM2 will need to co-invest $30M. I can manage that separately.\n\nAndy"
+  },
+  {
+    "id": "email_007",
+    "message_id": "<20011208.091245.enron@enron.com>",
+    "from": "jeff.skilling@enron.com",
+    "to": ["andy.fastow@enron.com"],
+    "cc": [],
+    "subject": "RE: Raptors financing - term sheet attached",
+    "date": "2001-12-08T09:12:45Z",
+    "body": "Andy,\n\nApproved. Get the LJM2 piece done on your end. Don't need to see the details.\n\nJeff"
+  },
+  {
+    "id": "email_008",
+    "message_id": "<20011210.162300.enron@enron.com>",
+    "from": "louise.kitchen@enron.com",
+    "to": ["tim.belden@enron.com", "john.lavorato@enron.com"],
+    "cc": ["greg.whalley@enron.com"],
+    "subject": "WCP-1 status update",
+    "date": "2001-12-10T16:23:00Z",
+    "body": "Team,\n\nUpdate as of Dec 10:\n- Three counterparties engaged: PG&E, SoCal Edison, Nevada Power\n- PG&E is slow due to bankruptcy proceedings - may drop them\n- SoCal Edison and Nevada Power both interested at $42/MWh\n- Tim: transmission issue tabled pending FERC ruling\n\nTarget: close at least 2 contracts by Dec 20.\n\nLouise"
+  },
+  {
+    "id": "email_009",
+    "message_id": "<20011211.084512.enron@enron.com>",
+    "from": "john.lavorato@enron.com",
+    "to": ["louise.kitchen@enron.com"],
+    "cc": [],
+    "subject": "RE: WCP-1 status update",
+    "date": "2001-12-11T08:45:12Z",
+    "body": "Louise,\n\nDrop PG&E. They can't sign anything while in Chapter 11. Nevada Power is the better bet - they have a signed LOI from last year with EES (Enron Energy Services) that gives us favorable terms.\n\nAlso heads up: John Arnold is asking questions about our load scheduling strategy out of Portland. You may want to loop him in or shut that down.\n\n- Lavo"
+  },
+  {
+    "id": "email_010",
+    "message_id": "<20011212.113045.enron@enron.com>",
+    "from": "louise.kitchen@enron.com",
+    "to": ["john.lavorato@enron.com", "tim.belden@enron.com"],
+    "cc": [],
+    "subject": "Decision: drop PG&E, focus Nevada Power + SoCal",
+    "date": "2001-12-12T11:30:45Z",
+    "body": "Agreed on PG&E - dropping them from scope. Confirmed targets are Nevada Power and SoCal Edison.\n\nOn John Arnold: he's fine, he's just nosy. Not looping him in.\n\n- Louise"
+  },
+  {
+    "id": "email_011",
+    "message_id": "<20011212.113045.enron@enron.com>",
+    "from": "l.kitchen@enron.com",
+    "to": ["john.lavorato@enron.com", "tim.belden@enron.com"],
+    "cc": [],
+    "subject": "Decision: drop PG&E, focus Nevada Power + SoCal",
+    "date": "2001-12-12T11:30:45Z",
+    "body": "Agreed on PG&E - dropping them from scope. Confirmed targets are Nevada Power and SoCal Edison.\n\nOn John Arnold: he's fine, he's just nosy. Not looping him in.\n\n- Louise"
+  },
+  {
+    "id": "email_012",
+    "message_id": "<20011214.094500.enron@enron.com>",
+    "from": "ken.lay@enron.com",
+    "to": ["jeff.skilling@enron.com", "louise.kitchen@enron.com"],
+    "cc": [],
+    "subject": "WCP-1 - Board wants project paused",
+    "date": "2001-12-14T09:45:00Z",
+    "body": "Jeff, Louise,\n\nThe Board had an emergency session this morning. Given Enron's current liquidity situation, they're asking us to pause all new capital commitments over $100M pending a review in January.\n\nWCP-1 is on hold. Do not sign any contracts. I'm sorry - this was not my call.\n\nKen"
+  },
+  {
+    "id": "email_013",
+    "message_id": "<20011214.113000.enron@enron.com>",
+    "from": "jeff.skilling@enron.com",
+    "to": ["ken.lay@enron.com"],
+    "cc": [],
+    "subject": "RE: WCP-1 - Board wants project paused",
+    "date": "2001-12-14T11:30:00Z",
+    "body": "Ken,\n\nThis reverses the Dec 5 go-decision. I understand the situation but Louise and the team have done real work here. We owe them a clear explanation.\n\nAlso - what happens to the Raptors III close on Dec 28? Andy has already committed LJM2 funds.\n\nJeff"
+  },
+  {
+    "id": "email_014",
+    "message_id": "<20011214.151200.enron@enron.com>",
+    "from": "andy.fastow@enron.com",
+    "to": ["jeff.skilling@enron.com"],
+    "cc": [],
+    "subject": "Raptors III - unwinding",
+    "date": "2001-12-14T15:12:00Z",
+    "body": "Jeff,\n\nRaptors III will need to be unwound. LJM2 can absorb the $30M but the SPE unwind is messier. Working with legal on it. \n\nThis stays between us for now.\n\nAndy"
+  },
+  {
+    "id": "email_015",
+    "message_id": "<20011215.100000.enron@enron.com>",
+    "from": "louise.kitchen@enron.com",
+    "to": ["tim.belden@enron.com", "john.lavorato@enron.com", "mark.frevert@enron.com"],
+    "cc": [],
+    "subject": "WCP-1 paused - team update",
+    "date": "2001-12-15T10:00:00Z",
+    "body": "Team,\n\nBoard has paused WCP-1 effective immediately. No contracts to be signed. Counterparties to be notified by EOD today.\n\nThis is a hold, not a cancel. We may revisit in January.\n\nYour work has been excellent. Thank you.\n\nLouise"
+  },
+  {
+    "id": "email_016",
+    "message_id": "<20011216.083000.enron@enron.com>",
+    "from": "kenneth.lay@enron.com",
+    "to": ["all.employees@enron.com"],
+    "cc": [],
+    "subject": "A message to all employees",
+    "date": "2001-12-16T08:30:00Z",
+    "body": "Team,\n\nI want to be transparent: Enron is facing serious financial difficulties. We are working with our advisors to explore all options. Employee 401k plans are not at risk in the short term.\n\nI remain committed to this company.\n\nKenneth Lay\nChairman and CEO"
+  },
+  {
+    "id": "email_017",
+    "message_id": "<20011216.083000.enron@enron.com>",
+    "from": "kenneth.lay@enron.com",
+    "to": ["all.employees@enron.com"],
+    "cc": [],
+    "subject": "A message to all employees",
+    "date": "2001-12-16T08:30:00Z",
+    "body": "Team,\n\nI want to be transparent: Enron is facing serious financial difficulties. We are working with our advisors to explore all options. Employee 401k plans are not at risk in the short term.\n\nI remain committed to this company.\n\nKenneth Lay\nChairman and CEO"
+  },
+  {
+    "id": "email_018",
+    "message_id": "<20011218.141500.enron@enron.com>",
+    "from": "greg.whalley@enron.com",
+    "to": ["louise.kitchen@enron.com"],
+    "cc": [],
+    "subject": "WCP-1 officially cancelled",
+    "date": "2001-12-18T14:15:00Z",
+    "body": "Louise,\n\nHeard from Ken's office: WCP-1 is cancelled, not just paused. Enron filed Chapter 11 this morning. The project is dead.\n\nGreg"
+  },
+  {
+    "id": "email_019",
+    "message_id": "<20011205.134512.enron@enron.com>",
+    "from": "jeff.skilling@enron.com",
+    "to": ["ken.lay@enron.com", "andy.fastow@enron.com"],
+    "cc": [],
+    "subject": "FWD: West Coast Power Project - Go Decision",
+    "date": "2001-12-05T14:00:00Z",
+    "body": "-------- Forwarded Message --------\nFrom: jeff.skilling@enron.com\nTo: ken.lay@enron.com, andy.fastow@enron.com\nSubject: West Coast Power Project - Go Decision\n\nKen, Andy,\n\nAfter reviewing the risk models with Greg Whalley, I've decided we should move forward with the West Coast Power project. Target capacity is 800 MW. We'll need Andy to close the Raptors financing by end of Q1.\n\nAssigning project lead to Louise Kitchen. She has full authority to negotiate contracts.\n\nLet's not discuss this over email going forward.\n\n- Jeff"
+  },
+  {
+    "id": "email_020",
+    "message_id": "<20011209.120000.enron@enron.com>",
+    "from": "tim.belden@enron.com",
+    "to": ["louise.kitchen@enron.com"],
+    "cc": [],
+    "subject": "FERC ruling expected this week",
+    "date": "2001-12-09T12:00:00Z",
+    "body": "Louise,\n\nHeard from our DC contact that FERC will rule on the Oregon transmission limits by Dec 13. If they approve expanded capacity, we can hold at 800 MW with no issues. If not, we trigger the Nevada fallback Greg approved.\n\nStay tuned.\n\nTim"
+  }
+]
