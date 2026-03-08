@@ -288,6 +288,28 @@
           "char_end": 163,
           "source_ts": "2001-12-05T13:45:12Z",
           "extraction_ver": "v1.0"
+        },
+        {
+          "id": 29,
+          "claim_id": "427b6efcc6bc736b",
+          "entity_id": "person:jeff_skilling",
+          "source_id": "email_001",
+          "excerpt": "I've decided we should move forward with the West Coast Power project. Target capacity is 800 MW.",
+          "char_start": 78,
+          "char_end": 163,
+          "source_ts": "2001-12-05T13:45:12Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 43,
+          "claim_id": "427b6efcc6bc736b",
+          "entity_id": "person:jeff_skilling",
+          "source_id": "email_001",
+          "excerpt": "I've decided we should move forward with the West Coast Power project. Target capacity is 800 MW.",
+          "char_start": 78,
+          "char_end": 163,
+          "source_ts": "2001-12-05T13:45:12Z",
+          "extraction_ver": "v1.0"
         }
       ]
     },
@@ -315,6 +337,28 @@
         },
         {
           "id": 16,
+          "claim_id": "e360ce9693e2cd92",
+          "entity_id": "person:louise_kitchen",
+          "source_id": "email_001",
+          "excerpt": "Assigning project lead to Louise Kitchen. She has full authority to negotiate contracts.",
+          "char_start": 264,
+          "char_end": 351,
+          "source_ts": "2001-12-05T13:45:12Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 30,
+          "claim_id": "e360ce9693e2cd92",
+          "entity_id": "person:louise_kitchen",
+          "source_id": "email_001",
+          "excerpt": "Assigning project lead to Louise Kitchen. She has full authority to negotiate contracts.",
+          "char_start": 264,
+          "char_end": 351,
+          "source_ts": "2001-12-05T13:45:12Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 44,
           "claim_id": "e360ce9693e2cd92",
           "entity_id": "person:louise_kitchen",
           "source_id": "email_001",
@@ -358,6 +402,28 @@
           "char_end": 222,
           "source_ts": "2001-12-05T13:45:12Z",
           "extraction_ver": "v1.0"
+        },
+        {
+          "id": 31,
+          "claim_id": "a8d3e2e61a166fb3",
+          "entity_id": "person:andy_fastow",
+          "source_id": "email_001",
+          "excerpt": "We'll need Andy to close the Raptors financing by end of Q1.",
+          "char_start": 164,
+          "char_end": 222,
+          "source_ts": "2001-12-05T13:45:12Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 45,
+          "claim_id": "a8d3e2e61a166fb3",
+          "entity_id": "person:andy_fastow",
+          "source_id": "email_001",
+          "excerpt": "We'll need Andy to close the Raptors financing by end of Q1.",
+          "char_start": 164,
+          "char_end": 222,
+          "source_ts": "2001-12-05T13:45:12Z",
+          "extraction_ver": "v1.0"
         }
       ]
     },
@@ -385,6 +451,28 @@
         },
         {
           "id": 18,
+          "claim_id": "5f817aa96e2e09a4",
+          "entity_id": "person:ken_lay",
+          "source_id": "email_002",
+          "excerpt": "The Board approved up to $200M for this.",
+          "char_start": 24,
+          "char_end": 64,
+          "source_ts": "2001-12-05T15:18:23Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 32,
+          "claim_id": "5f817aa96e2e09a4",
+          "entity_id": "person:ken_lay",
+          "source_id": "email_002",
+          "excerpt": "The Board approved up to $200M for this.",
+          "char_start": 24,
+          "char_end": 64,
+          "source_ts": "2001-12-05T15:18:23Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 46,
           "claim_id": "5f817aa96e2e09a4",
           "entity_id": "person:ken_lay",
           "source_id": "email_002",
@@ -428,6 +516,28 @@
           "char_end": 276,
           "source_ts": "2001-12-06T09:23:41Z",
           "extraction_ver": "v1.0"
+        },
+        {
+          "id": 33,
+          "claim_id": "56db0e90e035b59e",
+          "entity_id": "person:tim_belden",
+          "source_id": "email_003",
+          "excerpt": "pulling in Tim Belden for trading strategy, John Lavorato for ops",
+          "char_start": 211,
+          "char_end": 276,
+          "source_ts": "2001-12-06T09:23:41Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 47,
+          "claim_id": "56db0e90e035b59e",
+          "entity_id": "person:tim_belden",
+          "source_id": "email_003",
+          "excerpt": "pulling in Tim Belden for trading strategy, John Lavorato for ops",
+          "char_start": 211,
+          "char_end": 276,
+          "source_ts": "2001-12-06T09:23:41Z",
+          "extraction_ver": "v1.0"
         }
       ]
     },
@@ -455,6 +565,28 @@
         },
         {
           "id": 20,
+          "claim_id": "5033ff3a9bff83e5",
+          "entity_id": "person:john_lavorato",
+          "source_id": "email_003",
+          "excerpt": "pulling in Tim Belden for trading strategy, John Lavorato for ops",
+          "char_start": 211,
+          "char_end": 276,
+          "source_ts": "2001-12-06T09:23:41Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 34,
+          "claim_id": "5033ff3a9bff83e5",
+          "entity_id": "person:john_lavorato",
+          "source_id": "email_003",
+          "excerpt": "pulling in Tim Belden for trading strategy, John Lavorato for ops",
+          "char_start": 211,
+          "char_end": 276,
+          "source_ts": "2001-12-06T09:23:41Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 48,
           "claim_id": "5033ff3a9bff83e5",
           "entity_id": "person:john_lavorato",
           "source_id": "email_003",
@@ -498,6 +630,28 @@
           "char_end": 283,
           "source_ts": "2001-12-07T08:30:12Z",
           "extraction_ver": "v1.0"
+        },
+        {
+          "id": 35,
+          "claim_id": "e3ea438a78139eda",
+          "entity_id": "person:greg_whalley",
+          "source_id": "email_005",
+          "excerpt": "we hold at 800 MW but add a Nevada corridor option as fallback. If transmission is constrained by Feb 1, we automatically drop to 620 MW.",
+          "char_start": 148,
+          "char_end": 283,
+          "source_ts": "2001-12-07T08:30:12Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 49,
+          "claim_id": "e3ea438a78139eda",
+          "entity_id": "person:greg_whalley",
+          "source_id": "email_005",
+          "excerpt": "we hold at 800 MW but add a Nevada corridor option as fallback. If transmission is constrained by Feb 1, we automatically drop to 620 MW.",
+          "char_start": 148,
+          "char_end": 283,
+          "source_ts": "2001-12-07T08:30:12Z",
+          "extraction_ver": "v1.0"
         }
       ]
     },
@@ -525,6 +679,28 @@
         },
         {
           "id": 22,
+          "claim_id": "ada5d18b9f4b346b",
+          "entity_id": "person:louise_kitchen",
+          "source_id": "email_010",
+          "excerpt": "Agreed on PG&E - dropping them from scope. Confirmed targets are Nevada Power and SoCal Edison.",
+          "char_start": 0,
+          "char_end": 95,
+          "source_ts": "2001-12-12T11:30:45Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 36,
+          "claim_id": "ada5d18b9f4b346b",
+          "entity_id": "person:louise_kitchen",
+          "source_id": "email_010",
+          "excerpt": "Agreed on PG&E - dropping them from scope. Confirmed targets are Nevada Power and SoCal Edison.",
+          "char_start": 0,
+          "char_end": 95,
+          "source_ts": "2001-12-12T11:30:45Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 50,
           "claim_id": "ada5d18b9f4b346b",
           "entity_id": "person:louise_kitchen",
           "source_id": "email_010",
@@ -568,6 +744,28 @@
           "char_end": 266,
           "source_ts": "2001-12-12T11:30:45Z",
           "extraction_ver": "v1.0"
+        },
+        {
+          "id": 37,
+          "claim_id": "e0dd305383b286e8",
+          "entity_id": "company:nevada_power",
+          "source_id": "email_010",
+          "excerpt": "SoCal Edison and Nevada Power both interested at $42/MWh",
+          "char_start": 210,
+          "char_end": 266,
+          "source_ts": "2001-12-12T11:30:45Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 51,
+          "claim_id": "e0dd305383b286e8",
+          "entity_id": "company:nevada_power",
+          "source_id": "email_010",
+          "excerpt": "SoCal Edison and Nevada Power both interested at $42/MWh",
+          "char_start": 210,
+          "char_end": 266,
+          "source_ts": "2001-12-12T11:30:45Z",
+          "extraction_ver": "v1.0"
         }
       ]
     },
@@ -595,6 +793,28 @@
         },
         {
           "id": 24,
+          "claim_id": "80b0f59282b03fcd",
+          "entity_id": "company:socal_edison",
+          "source_id": "email_010",
+          "excerpt": "SoCal Edison and Nevada Power both interested at $42/MWh",
+          "char_start": 210,
+          "char_end": 266,
+          "source_ts": "2001-12-12T11:30:45Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 38,
+          "claim_id": "80b0f59282b03fcd",
+          "entity_id": "company:socal_edison",
+          "source_id": "email_010",
+          "excerpt": "SoCal Edison and Nevada Power both interested at $42/MWh",
+          "char_start": 210,
+          "char_end": 266,
+          "source_ts": "2001-12-12T11:30:45Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 52,
           "claim_id": "80b0f59282b03fcd",
           "entity_id": "company:socal_edison",
           "source_id": "email_010",
@@ -638,6 +858,28 @@
           "char_end": 176,
           "source_ts": "2001-12-14T09:45:00Z",
           "extraction_ver": "v1.0"
+        },
+        {
+          "id": 39,
+          "claim_id": "a8670cbdfa188586",
+          "entity_id": "person:ken_lay",
+          "source_id": "email_012",
+          "excerpt": "Board had an emergency session this morning. Given Enron's current liquidity situation, they're asking us to pause all new capital commitments over $100M",
+          "char_start": 23,
+          "char_end": 176,
+          "source_ts": "2001-12-14T09:45:00Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 53,
+          "claim_id": "a8670cbdfa188586",
+          "entity_id": "person:ken_lay",
+          "source_id": "email_012",
+          "excerpt": "Board had an emergency session this morning. Given Enron's current liquidity situation, they're asking us to pause all new capital commitments over $100M",
+          "char_start": 23,
+          "char_end": 176,
+          "source_ts": "2001-12-14T09:45:00Z",
+          "extraction_ver": "v1.0"
         }
       ]
     },
@@ -665,6 +907,28 @@
         },
         {
           "id": 26,
+          "claim_id": "4fead8d880c356b2",
+          "entity_id": "decision:wcp_1_pause_decision",
+          "source_id": "email_012",
+          "excerpt": "WCP-1 is on hold. Do not sign any contracts.",
+          "char_start": 198,
+          "char_end": 243,
+          "source_ts": "2001-12-14T09:45:00Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 40,
+          "claim_id": "4fead8d880c356b2",
+          "entity_id": "decision:wcp_1_pause_decision",
+          "source_id": "email_012",
+          "excerpt": "WCP-1 is on hold. Do not sign any contracts.",
+          "char_start": 198,
+          "char_end": 243,
+          "source_ts": "2001-12-14T09:45:00Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 54,
           "claim_id": "4fead8d880c356b2",
           "entity_id": "decision:wcp_1_pause_decision",
           "source_id": "email_012",
@@ -708,6 +972,28 @@
           "char_end": 131,
           "source_ts": "2001-12-18T14:15:00Z",
           "extraction_ver": "v1.0"
+        },
+        {
+          "id": 41,
+          "claim_id": "62c1bf4bbe44a47a",
+          "entity_id": "decision:wcp_1_cancellation",
+          "source_id": "email_018",
+          "excerpt": "WCP-1 is cancelled, not just paused. Enron filed Chapter 11 this morning. The project is dead.",
+          "char_start": 37,
+          "char_end": 131,
+          "source_ts": "2001-12-18T14:15:00Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 55,
+          "claim_id": "62c1bf4bbe44a47a",
+          "entity_id": "decision:wcp_1_cancellation",
+          "source_id": "email_018",
+          "excerpt": "WCP-1 is cancelled, not just paused. Enron filed Chapter 11 this morning. The project is dead.",
+          "char_start": 37,
+          "char_end": 131,
+          "source_ts": "2001-12-18T14:15:00Z",
+          "extraction_ver": "v1.0"
         }
       ]
     },
@@ -735,6 +1021,28 @@
         },
         {
           "id": 28,
+          "claim_id": "135b3ab21e9784f7",
+          "entity_id": "decision:wcp_1_cancellation",
+          "source_id": "email_018",
+          "excerpt": "WCP-1 is cancelled, not just paused.",
+          "char_start": 37,
+          "char_end": 73,
+          "source_ts": "2001-12-18T14:15:00Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 42,
+          "claim_id": "135b3ab21e9784f7",
+          "entity_id": "decision:wcp_1_cancellation",
+          "source_id": "email_018",
+          "excerpt": "WCP-1 is cancelled, not just paused.",
+          "char_start": 37,
+          "char_end": 73,
+          "source_ts": "2001-12-18T14:15:00Z",
+          "extraction_ver": "v1.0"
+        },
+        {
+          "id": 56,
           "claim_id": "135b3ab21e9784f7",
           "entity_id": "decision:wcp_1_cancellation",
           "source_id": "email_018",
@@ -795,6 +1103,54 @@
       "merge_type": "entity_merge",
       "details": "{\"type\": \"entity_merge\", \"canonical_id\": \"person:ken_lay\", \"merged_name\": \"Ken Lay\", \"added_aliases\": [\"kenneth.lay@enron.com\", \"Kenneth Lay\"]}",
       "created_at": "2026-03-08 18:04:12"
+    },
+    {
+      "id": 9,
+      "merge_type": "artifact_exact_dedup",
+      "details": "{\"type\": \"artifact_exact_dedup\", \"duplicate_id\": \"email_011\", \"canonical_id\": \"email_010\", \"reason\": \"identical body fingerprint\"}",
+      "created_at": "2026-03-08 18:06:06"
+    },
+    {
+      "id": 10,
+      "merge_type": "artifact_exact_dedup",
+      "details": "{\"type\": \"artifact_exact_dedup\", \"duplicate_id\": \"email_017\", \"canonical_id\": \"email_016\", \"reason\": \"identical body fingerprint\"}",
+      "created_at": "2026-03-08 18:06:06"
+    },
+    {
+      "id": 11,
+      "merge_type": "entity_merge",
+      "details": "{\"type\": \"entity_merge\", \"canonical_id\": \"person:louise_kitchen\", \"merged_name\": \"Louise Kitchen\", \"added_aliases\": [\"l.kitchen@enron.com\"]}",
+      "created_at": "2026-03-08 18:06:06"
+    },
+    {
+      "id": 12,
+      "merge_type": "entity_merge",
+      "details": "{\"type\": \"entity_merge\", \"canonical_id\": \"person:ken_lay\", \"merged_name\": \"Ken Lay\", \"added_aliases\": [\"kenneth.lay@enron.com\", \"Kenneth Lay\"]}",
+      "created_at": "2026-03-08 18:06:06"
+    },
+    {
+      "id": 13,
+      "merge_type": "artifact_exact_dedup",
+      "details": "{\"type\": \"artifact_exact_dedup\", \"duplicate_id\": \"email_011\", \"canonical_id\": \"email_010\", \"reason\": \"identical body fingerprint\"}",
+      "created_at": "2026-03-08 18:11:48"
+    },
+    {
+      "id": 14,
+      "merge_type": "artifact_exact_dedup",
+      "details": "{\"type\": \"artifact_exact_dedup\", \"duplicate_id\": \"email_017\", \"canonical_id\": \"email_016\", \"reason\": \"identical body fingerprint\"}",
+      "created_at": "2026-03-08 18:11:48"
+    },
+    {
+      "id": 15,
+      "merge_type": "entity_merge",
+      "details": "{\"type\": \"entity_merge\", \"canonical_id\": \"person:louise_kitchen\", \"merged_name\": \"Louise Kitchen\", \"added_aliases\": [\"l.kitchen@enron.com\"]}",
+      "created_at": "2026-03-08 18:11:48"
+    },
+    {
+      "id": 16,
+      "merge_type": "entity_merge",
+      "details": "{\"type\": \"entity_merge\", \"canonical_id\": \"person:ken_lay\", \"merged_name\": \"Ken Lay\", \"added_aliases\": [\"Kenneth Lay\", \"kenneth.lay@enron.com\"]}",
+      "created_at": "2026-03-08 18:11:48"
     }
   ]
 }
