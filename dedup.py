@@ -1,12 +1,11 @@
-"""
-dedup.py — deduplication and canonicalization for the memory graph.
+"""dedup.py - deduplication and canonicalization.
 
 Three levels:
-  1. Artifact dedup  — identical/near-identical source emails
-  2. Entity dedup    — same person/project under different names
-  3. Claim dedup     — same fact stated in multiple emails, merge evidence
+  1. Artifact dedup   - same/near-same emails
+  2. Entity dedup     - same person/project under different names
+  3. Claim dedup      - same fact from multiple emails, merge evidence
 
-All merges are recorded so they can be audited or reversed.
+All merges are logged so they can be audited or undone.
 """
 
 import hashlib
@@ -17,14 +16,10 @@ from collections import defaultdict
 from difflib import SequenceMatcher
 
 
-
-# ── 1. Artifact dedup ─────────────────────────────────────────────────────────
+# --- 1. Artifact dedup ---
 
 def body_fingerprint(text: str) -> str:
-    """
-    Content hash that's robust to minor formatting differences.
-    Strip quoted sections (lines starting with >) and normalize whitespace.
-    """
+    """Hash the email body after stripping quoted lines and normalizing whitespace."""
     lines = []
     for line in text.splitlines():
         stripped = line.strip()
@@ -36,10 +31,7 @@ def body_fingerprint(text: str) -> str:
 
 
 def simhash(text: str, bits: int = 64) -> int:
-    """
-    Simple SimHash for near-duplicate detection.
-    Returns an integer fingerprint; Hamming distance < 4 → likely duplicate.
-    """
+    """64-bit SimHash for near-duplicate detection."""
     tokens = re.findall(r"\w+", text.lower())
     v = [0] * bits
     for token in tokens:
@@ -54,11 +46,8 @@ def hamming(a: int, b: int) -> int:
 
 
 def dedup_artifacts(emails: list[dict]) -> tuple[list[dict], list[dict]]:
-    """
-    Returns (deduplicated_emails, merge_log).
-    Keeps the earliest copy; records all duplicates.
-    """
-    seen_exact: dict[str, str] = {}   # fingerprint → canonical email id
+    """Remove duplicate emails. Keeps earliest copy, logs the rest."""
+    seen_exact: dict[str, str] = {}   # fingerprint -> canonical email id
     seen_sim: list[tuple[int, str]] = []  # (simhash, email_id)
     kept = []
     merge_log = []
@@ -100,7 +89,7 @@ def dedup_artifacts(emails: list[dict]) -> tuple[list[dict], list[dict]]:
     return kept, merge_log
 
 
-# ── 2. Entity canonicalization ────────────────────────────────────────────────
+# --- 2. Entity canonicalization ---
 
 def normalize_name(name: str) -> str:
     """Lowercase, strip punctuation, normalize unicode."""
@@ -109,7 +98,7 @@ def normalize_name(name: str) -> str:
     return re.sub(r"\s+", " ", name).strip()
 
 
-# Known aliases that we hard-code (in production this would grow via feedback)
+# hardcoded aliases (in production you'd build this up over time)
 ALIAS_MAP = {
     "kenneth lay": "Ken Lay",
     "kenneth l lay": "Ken Lay",
@@ -127,7 +116,7 @@ ALIAS_MAP = {
     "southern california edison": "SoCal Edison",
 }
 
-# Email → canonical name map (built from the corpus)
+# email -> name mapping
 EMAIL_TO_PERSON = {
     "jeff.skilling@enron.com": "Jeff Skilling",
     "ken.lay@enron.com": "Ken Lay",
@@ -177,13 +166,7 @@ def make_entity_id(entity_type: str, canonical_name: str) -> str:
 
 
 def canonicalize_entities(raw_entities: list[dict]) -> tuple[dict, list[dict]]:
-    """
-    Merge raw entity mentions into a canonical entity registry.
-
-    Returns:
-        canonical: dict[entity_id → merged entity record]
-        merge_log: list of merge events
-    """
+    """Merge raw entity mentions into a canonical registry. Returns (canonical_dict, merge_log)."""
     canonical: dict[str, dict] = {}
     merge_log = []
 
@@ -226,7 +209,7 @@ def canonicalize_entities(raw_entities: list[dict]) -> tuple[dict, list[dict]]:
     return canonical, merge_log
 
 
-# ── 3. Claim dedup ────────────────────────────────────────────────────────────
+# --- 3. Claim dedup ---
 
 def claim_fingerprint(claim_type: str, subject: str, obj: str | None) -> str:
     """Stable ID for a (type, subject, object) triple."""
@@ -235,11 +218,7 @@ def claim_fingerprint(claim_type: str, subject: str, obj: str | None) -> str:
 
 
 def dedup_claims(raw_claims: list[dict]) -> tuple[list[dict], list[dict]]:
-    """
-    Merge claims with the same (type, subject, object) fingerprint.
-    Keeps all evidence; picks the highest-confidence version as the primary.
-    Returns (merged_claims, merge_log).
-    """
+    """Merge claims with the same (type, subject, object). Pools evidence, keeps highest confidence."""
     groups: dict[str, list[dict]] = defaultdict(list)
     for c in raw_claims:
         fp = claim_fingerprint(c["type"], c.get("subject", ""), c.get("object"))
@@ -286,16 +265,13 @@ def dedup_claims(raw_claims: list[dict]) -> tuple[list[dict], list[dict]]:
     return merged, merge_log
 
 
-# ── Top-level entry point ─────────────────────────────────────────────────────
+# --- Main entry point ---
 
 def run_dedup(
     emails: list[dict],
     extractions: list[dict],
 ) -> dict:
-    """
-    Full dedup pass. Returns a dict with deduplicated artifacts, canonical
-    entities, merged claims, and the full merge log.
-    """
+    """Run the full dedup pipeline. Returns deduplicated data + merge log."""
     # 1. artifact dedup
     deduped_emails, artifact_log = dedup_artifacts(emails)
 

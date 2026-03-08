@@ -1,17 +1,10 @@
-"""
-retrieve.py — answer questions using the memory graph.
+"""retrieve.py - answer questions using the memory graph.
 
-Given a natural-language question, returns a ranked context pack:
-  - matched entities
-  - matched claims (with confidence and validity)
-  - supporting evidence excerpts
+Does keyword matching against entities and claims, builds a ranked
+context pack with evidence and conflict info.
 
-No embedding model required — uses keyword matching + simple scoring.
-For production you'd swap in a vector index here.
-
-Usage:
     python retrieve.py "Who is leading the West Coast Power project?"
-    python retrieve.py --db outputs/memory.db "What decisions were reversed?"
+    python retrieve.py --examples
 """
 
 import argparse
@@ -21,7 +14,6 @@ import sys
 from graph_store import GraphStore
 
 
-# ── Stop words ────────────────────────────────────────────────────────────────
 
 STOP = {
     "the", "a", "an", "is", "was", "are", "were", "be", "been", "being",
@@ -39,8 +31,6 @@ def tokenize(text: str) -> list[str]:
     return [t for t in tokens if t not in STOP and len(t) > 2]
 
 
-# ── Scoring ───────────────────────────────────────────────────────────────────
-
 def score_text(query_tokens: list[str], text: str) -> float:
     if not text:
         return 0.0
@@ -52,7 +42,7 @@ def score_text(query_tokens: list[str], text: str) -> float:
 def retrieve(db: GraphStore, question: str, top_k: int = 8) -> dict:
     tokens = tokenize(question)
 
-    # ── Entity matching ───────────────────────────────────────────────────────
+    # match entities
     entity_scores: dict[str, float] = {}
     all_entities = db.all_entities()
     for ent in all_entities:
@@ -70,7 +60,7 @@ def retrieve(db: GraphStore, question: str, top_k: int = 8) -> dict:
         reverse=True,
     )[:5]
 
-    # ── Claim matching ────────────────────────────────────────────────────────
+    # match claims
     all_claims = db.all_claims()
     claim_scores: dict[str, float] = {}
     for claim in all_claims:
@@ -92,7 +82,7 @@ def retrieve(db: GraphStore, question: str, top_k: int = 8) -> dict:
         reverse=True,
     )[:top_k]
 
-    # ── Evidence pull ─────────────────────────────────────────────────────────
+    # pull evidence
     evidence_items = []
     seen_excerpts: set[str] = set()
     for claim in matched_claims:
@@ -110,9 +100,7 @@ def retrieve(db: GraphStore, question: str, top_k: int = 8) -> dict:
                     "claim_value": claim.get("value"),
                 })
 
-    # ── Conflict detection ────────────────────────────────────────────────────
-    # surface pairs of claims of the same type about the same subject
-    # where one has been superseded (valid_to set)
+    # check for conflicts (superseded claims)
     conflicts = []
     closed = [c for c in matched_claims if c.get("valid_to")]
     for c in closed:
@@ -157,7 +145,6 @@ def retrieve(db: GraphStore, question: str, top_k: int = 8) -> dict:
     }
 
 
-# ── Pretty printer ────────────────────────────────────────────────────────────
 
 def print_context_pack(pack: dict):
     print(f"\n{'='*60}")
@@ -167,14 +154,14 @@ def print_context_pack(pack: dict):
     if pack["matched_entities"]:
         print("MATCHED ENTITIES:")
         for e in pack["matched_entities"]:
-            aliases = ", ".join(e["aliases"][:3]) if e["aliases"] else "—"
+            aliases = ", ".join(e["aliases"][:3]) if e["aliases"] else "none"
             print(f"  [{e['type']}] {e['name']}  (aliases: {aliases})")
         print()
 
     if pack["matched_claims"]:
         print("MATCHED CLAIMS:")
         for c in pack["matched_claims"]:
-            status = "✓ current" if c["is_current"] else f"✗ superseded {c['valid_to']}"
+            status = "[current]" if c["is_current"] else f"[superseded {c['valid_to']}]"
             print(f"  [{c['type']}] {c['value']}")
             print(f"    confidence={c['confidence']:.2f}  {status}")
         print()
@@ -187,14 +174,13 @@ def print_context_pack(pack: dict):
             print()
 
     if pack["conflicts"]:
-        print("⚠ CONFLICTS / REVISIONS:")
+        print("CONFLICTS / REVISIONS:")
         for c in pack["conflicts"]:
             print(f"  {c['claim_type']}: \"{c['value']}\"")
-            print(f"  → valid {c['valid_from'][:10]} to {c['valid_to'][:10]}")
+            print(f"  -> valid {c['valid_from'][:10]} to {c['valid_to'][:10]}")
         print()
 
 
-# ── CLI ───────────────────────────────────────────────────────────────────────
 
 EXAMPLE_QUESTIONS = [
     "Who is leading the West Coast Power project?",

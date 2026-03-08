@@ -1,14 +1,7 @@
-"""
-graph_store.py — SQLite-backed memory graph.
-
-Schema:
-  entities   — canonical entity records
-  claims     — typed relations between entities, with validity window
-  evidence   — grounded excerpts linked to claims and entities
-  merges     — audit log of all merge decisions (reversible)
-
-All writes are idempotent (INSERT OR REPLACE keyed by stable id).
-"""
+# graph_store.py - SQLite-backed memory graph
+#
+# Tables: entities, claims, evidence, merges
+# All writes are idempotent (INSERT OR REPLACE on stable IDs)
 
 import json
 import sqlite3
@@ -35,7 +28,7 @@ CREATE TABLE IF NOT EXISTS claims (
     object_id       TEXT REFERENCES entities(id),
     value           TEXT,
     valid_from      TEXT,
-    valid_to        TEXT,          -- NULL = still current
+    valid_to        TEXT,
     confidence      REAL DEFAULT 0.7,
     created_at      TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (subject_id) REFERENCES entities(id),
@@ -56,8 +49,8 @@ CREATE TABLE IF NOT EXISTS evidence (
 
 CREATE TABLE IF NOT EXISTS merges (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    merge_type      TEXT NOT NULL,   -- artifact_exact_dedup, entity_merge, claim_merge
-    details         TEXT,            -- JSON
+    merge_type      TEXT NOT NULL,
+    details         TEXT,
     created_at      TEXT DEFAULT (datetime('now'))
 );
 
@@ -78,7 +71,6 @@ class GraphStore:
         self.conn.executescript(DDL)
         self.conn.commit()
 
-    # ── Entities ──────────────────────────────────────────────────────────────
 
     def upsert_entity(self, entity: dict):
         self.conn.execute(
@@ -111,7 +103,6 @@ class GraphStore:
         rows = self.conn.execute("SELECT * FROM entities").fetchall()
         return [dict(r) for r in rows]
 
-    # ── Claims ────────────────────────────────────────────────────────────────
 
     def upsert_claim(self, claim: dict):
         self.conn.execute(
@@ -135,7 +126,7 @@ class GraphStore:
         )
 
     def close_claim(self, claim_id: str, valid_to: str):
-        """Mark a claim as no longer current (superseded by a revision)."""
+        """Mark a claim as superseded."""
         self.conn.execute(
             "UPDATE claims SET valid_to = ? WHERE id = ?",
             (valid_to, claim_id),
@@ -152,7 +143,6 @@ class GraphStore:
         ).fetchall()
         return [dict(r) for r in rows]
 
-    # ── Evidence ──────────────────────────────────────────────────────────────
 
     def add_evidence(self, ev: dict):
         self.conn.execute(
@@ -178,7 +168,6 @@ class GraphStore:
         ).fetchall()
         return [dict(r) for r in rows]
 
-    # ── Merges ────────────────────────────────────────────────────────────────
 
     def log_merge(self, merge: dict):
         self.conn.execute(
@@ -190,10 +179,8 @@ class GraphStore:
         rows = self.conn.execute("SELECT * FROM merges ORDER BY id").fetchall()
         return [dict(r) for r in rows]
 
-    # ── Retrieval helpers ─────────────────────────────────────────────────────
-
     def search_entities(self, query: str) -> list[dict]:
-        """Simple case-insensitive substring search over name + aliases."""
+        """Case-insensitive substring search on name + aliases."""
         q = f"%{query.lower()}%"
         rows = self.conn.execute(
             """
@@ -243,10 +230,8 @@ class GraphStore:
     def close(self):
         self.conn.close()
 
-    # ── Export ────────────────────────────────────────────────────────────────
-
     def export_graph_json(self) -> dict:
-        """Serialize the whole graph for the visualization layer."""
+        """Dump the whole graph as a dict for the viz."""
         entities = self.all_entities()
         claims = self.all_claims()
 

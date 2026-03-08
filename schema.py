@@ -1,16 +1,10 @@
-"""
-schema.py — ontology for the Layer10 memory graph.
-
-Kept intentionally small. The goal is a coherent schema that covers
-the main things that matter in organizational communication: who said what,
-what was decided, and how things changed over time.
-"""
+# schema.py - entity types, claim types, and the extraction prompt
 
 from dataclasses import dataclass, field
 from typing import Optional
 import time
 
-# ── Entity types ────────────────────────────────────────────────────────────
+
 ENTITY_TYPES = {
     "Person":    "An individual (employee, contractor, external contact).",
     "Project":   "A named initiative or workstream.",
@@ -20,7 +14,7 @@ ENTITY_TYPES = {
     "Company":   "An external organization or counterparty.",
 }
 
-# ── Claim/relation types ─────────────────────────────────────────────────────
+
 CLAIM_TYPES = {
     "SENT_MESSAGE":    "Person sent a message to Person(s).",
     "MADE_DECISION":   "Person (or group) made a Decision.",
@@ -34,50 +28,46 @@ CLAIM_TYPES = {
     "REPORTED_TO":     "Person reports to another Person.",
 }
 
-# ── Dataclasses ───────────────────────────────────────────────────────────────
 
 @dataclass
 class Evidence:
-    """A grounded pointer to a source artifact."""
     source_id: str          # e.g. email_001
     excerpt: str            # verbatim snippet (≤ 300 chars)
     char_start: int         # character offset in the source body
     char_end: int
     timestamp: str          # ISO-8601 from the source
-    extraction_model: str   # which model/prompt version produced this
+    extraction_model: str
 
 
 @dataclass
 class Entity:
-    id: str                       # canonical id, e.g. "person:jeff_skilling"
-    type: str                     # from ENTITY_TYPES
+    id: str
+    type: str
     canonical_name: str
     aliases: list[str] = field(default_factory=list)
     attributes: dict = field(default_factory=dict)
-    first_seen: str = ""          # ISO timestamp of earliest evidence
+    first_seen: str = ""
     last_seen: str = ""
     evidence: list[Evidence] = field(default_factory=list)
 
 
 @dataclass
 class Claim:
-    id: str                       # stable hash of (type, subject_id, object_id, value)
-    type: str                     # from CLAIM_TYPES
-    subject_id: str               # Entity.id
-    object_id: Optional[str]      # Entity.id or None for unary claims
-    value: Optional[str]          # freetext detail or None
-    valid_from: str               # when this claim became true
+    id: str
+    type: str
+    subject_id: str
+    object_id: Optional[str]
+    value: Optional[str]
+    valid_from: str
     valid_to: Optional[str]       # None = still current
-    confidence: float             # 0–1, set by extraction + cross-evidence
+    confidence: float
     evidence: list[Evidence] = field(default_factory=list)
 
 
-# ── Extraction prompt ─────────────────────────────────────────────────────────
-# The model is asked to return a JSON object matching this shape.
-
+# prompt template for the LLM
 EXTRACTION_PROMPT = """
 You are an information extraction engine. Given an email, extract entities and
-claims according to the schema below. Be conservative — only extract things
+claims according to the schema below. Be conservative - only extract things
 clearly supported by the text.
 
 ENTITY TYPES: Person, Project, Decision, Team, Document, Company

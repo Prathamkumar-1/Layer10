@@ -1,269 +1,166 @@
-# Layer10 Take-Home: Grounded Long-Term Memory Graph
+# Layer10 Take-Home: Memory Graph from Emails
 
-A pipeline that turns a corpus of organizational emails into a queryable, grounded memory graph — with deduplication, conflict tracking, and an interactive visualization.
+Pipeline that reads a corpus of emails and builds a queryable memory graph out of them. Handles dedup, tracks when decisions get reversed, and has a D3 visualization.
 
----
-
-## Quick start (no API key needed)
+## How to run
 
 ```bash
-# 1. clone / unzip the repo
-cd layer10-memory
-
-# 2. run the full pipeline in demo mode
+# no API key needed for demo mode
 python ingest.py --demo
 
-# 3. open the visualization
-open viz/index.html          # macOS
-# or just drag viz/index.html into your browser
+# open the visualization
+# just open viz/index.html in your browser
 
-# 4. run example retrieval queries
+# run some example queries
 python retrieve.py --examples
 ```
 
-To run extraction against a real model, get a **free** Groq key at [console.groq.com](https://console.groq.com) (no credit card needed), then:
+If you want to run real extraction (not just demo data):
 
 ```bash
-export GROQ_API_KEY=gsk_...
-python3 extract.py --corpus corpus/emails.json --out outputs/extracted.json
-python3 ingest.py
+export GROQ_API_KEY=gsk_...    # free at console.groq.com, no credit card
+python extract.py --corpus corpus/emails.json --out outputs/extracted.json
+python ingest.py
 ```
 
-Model used: `llama-3.3-70b-versatile` via Groq free tier.
-
----
-
-## Corpus
-
-
-**Enron Email Dataset** — the CMU/FERC release, widely used in NLP research.
-
-Download:
-- CMU: https://www.cs.cmu.edu/~enron/  (full maildir, ~423k emails)
-- Kaggle mirror: https://www.kaggle.com/datasets/wcukierski/enron-email-dataset  (CSV, easier)
-
-For this demo I use 20 hand-picked emails covering a single project thread (West Coast Power / WCP-1, December 2001). They capture the key challenges: forwarded duplicates, identity aliases, a decision that gets reversed twice, and an entity (PG&E) that's added then dropped as a counterparty.
-
-To reproduce:
-```bash
-# kaggle CLI
-kaggle datasets download -d wcukierski/enron-email-dataset
-# then filter to the inboxes of skilling-j, lay-k, kitchen-l, etc.
-# I've included a representative 20-email sample in corpus/emails.json
-```
-
----
+I used `llama-3.3-70b-versatile` on Groq's free tier. It's OpenAI-compatible so you could swap in any other model pretty easily.
 
 ## Project structure
 
 ```
-layer10-memory/
-├── corpus/
-│   └── emails.json          # 20 representative Enron emails
-├── schema.py                # ontology: entity types, claim types, extraction prompt
-├── extract.py               # LLM extraction pipeline (Anthropic API or --demo)
-├── dedup.py                 # artifact dedup, entity canonicalization, claim merging
-├── graph_store.py           # SQLite-backed memory graph
-├── ingest.py                # orchestrates everything: extract → dedup → build graph
-├── retrieve.py              # keyword retrieval, context packs, conflict surfacing
-├── viz/index.html           # self-contained D3.js graph visualization
-└── outputs/
-    ├── extracted.json       # raw extraction results
-    ├── memory.db            # SQLite graph
-    ├── graph.json           # serialized graph for the viz
-    └── example_queries.json # 5 example context packs
+corpus/emails.json       - 20 Enron emails (hand-picked thread about WCP-1 project)
+schema.py                - entity/claim type definitions + extraction prompt
+extract.py               - calls Groq API to pull entities+claims from each email
+dedup.py                 - dedup at 3 levels: emails, entities, claims
+graph_store.py           - SQLite wrapper for the memory graph
+ingest.py                - ties it all together: extract -> dedup -> graph
+retrieve.py              - keyword search, builds context packs for questions
+viz/index.html           - D3.js interactive graph (self-contained, no server)
+outputs/
+  extracted.json         - raw extraction output
+  memory.db              - the actual graph (SQLite)
+  graph.json             - graph serialized for the viz
+  example_queries.json   - 5 example context packs
 ```
 
----
+## The corpus
+
+I grabbed 20 emails from the Enron dataset (the CMU/FERC release). They're all from one project thread - West Coast Power (WCP-1), December 2001. I picked this subset because it has all the tricky cases:
+- Forwarded duplicates (email_011 = email_010 from different addresses)
+- People with multiple names/aliases (Ken Lay / Kenneth Lay / ken.lay@enron.com)
+- A decision that gets made, paused, then cancelled
+- A counterparty (PG&E) that gets added then dropped
+
+You can get the full dataset from:
+- https://www.cs.cmu.edu/~enron/ (full maildir)
+- https://www.kaggle.com/datasets/wcukierski/enron-email-dataset (CSV, easier to work with)
 
 ## Ontology
 
-I kept the schema small and coherent rather than trying to cover everything at once. It can grow incrementally.
+I kept it small on purpose - 6 entity types and 8 claim types.
 
-**Entity types**
+**Entities:** Person, Project, Decision, Team, Document, Company
 
-| Type | Description |
-|------|-------------|
-| Person | Individuals — employees, contractors, external contacts |
-| Project | Named initiatives or workstreams |
-| Decision | A documented choice (including reversals) |
-| Team | Org units or working groups |
-| Document | Files, contracts, term sheets |
-| Company | External organizations / counterparties |
+**Claims:** MADE_DECISION, ASSIGNED_TO, PART_OF, COUNTERPARTY_OF, REVISES, CANCELS, AUTHORED, MENTIONED
 
-**Claim types**
-
-| Type | Meaning |
-|------|---------|
-| MADE_DECISION | Person (or group) made a Decision |
-| ASSIGNED_TO | Person is assigned to a Project |
-| PART_OF | Person is a member of a Team or Project |
-| COUNTERPARTY_OF | Company is a counterparty on a Project |
-| REVISES | Decision supersedes a prior Decision |
-| CANCELS | Decision cancels a Project or prior Decision |
-| AUTHORED | Person authored a Document |
-| MENTIONED | Catch-all for softer associations |
-
-Every claim has: `subject_id`, `object_id`, `value` (freetext gloss), `valid_from`, `valid_to` (null = current), `confidence`, and a list of evidence pointers.
-
----
+Each claim has a subject, object, value (free text description), time window (valid_from/valid_to), confidence score, and pointers back to the source evidence. The key thing is that every claim has to point at a verbatim excerpt from the original email - that's how grounding works.
 
 ## Extraction
 
-The extraction prompt asks the model to produce typed entities and grounded claims from a single email. Each claim must include a verbatim excerpt and character offsets — not just a paraphrase. This is the grounding contract.
+The LLM gets one email at a time and has to output structured JSON with entities and claims. Each claim needs a verbatim quote + character offsets from the email body, not just a summary.
 
-The model used is **Llama 3.3 70B** running on **Groq's free tier** — genuinely free, no credit card, fast inference. The API is OpenAI-compatible so swapping to another free model (Mixtral, Gemma, etc.) is a one-line change.
+I do some basic validation on the output:
+- Strip markdown fences if the model wraps the JSON in them
+- Try regex fallback if JSON parsing fails (find first `{...}` block)
+- Fill in default values for missing fields
+- Mark malformed records with `_invalid: true`
+- Retry with backoff on rate limits
 
-**Validation and repair**
+Each extraction also records the model version and extraction version, so if I change the prompt later I know which results came from which version.
 
-- JSON is parsed with a regex fallback if the model wraps output in markdown fences
-- Missing fields get defaults; `_invalid: true` is set on malformed records
-- Retries with exponential backoff on rate limit errors
-- Every result records `_extraction_version` and `_model` so we can backfill if the schema changes
+For confidence: the model assigns an initial score, and during dedup if the same claim shows up from multiple emails, I bump it by 0.05 per extra source (capped at 1.0).
 
-**Confidence**
-
-Claims start at whatever confidence the model assigns (0.7 default). When the same claim is corroborated by multiple emails during dedup, confidence is bumped by 0.05 per additional source (capped at 1.0).
-
-**Quality gates**
-
-In production I'd add:
-1. A cross-evidence support requirement before a claim becomes durable: claims seen in only one source get a `needs_corroboration` flag
-2. Decay: claims not re-observed within N days are soft-expired and marked for human review
-3. A blocked list of high-noise extraction patterns (e.g. "I will look into this" → no decision claim)
-
----
+Things I'd add with more time:
+- Require at least 2 sources before a claim becomes "durable"
+- Auto-expire claims that haven't been re-seen in a while
+- Block noisy patterns like "I will look into this" from becoming decision claims
 
 ## Deduplication
 
-Three levels, each logged to the `merges` table so they can be audited and reversed.
+Three passes, all logged to a `merges` table so you can see what happened (and undo it if needed).
 
-**1. Artifact dedup**
+**1. Email dedup** - Normalize the body (strip quoted lines, collapse whitespace) and SHA-256 it. Also compute a SimHash (64-bit) and check Hamming distance < 5 for near-dupes. This catches email_011 being a duplicate of email_010 (same content, different From address).
 
-Each email body is normalized (strip quoted lines, collapse whitespace) and hashed. Near-duplicates are caught with SimHash (64-bit); Hamming distance < 5 → same content. The earliest copy is kept; later copies are logged with `artifact_exact_dedup` or `artifact_near_dedup`.
+**2. Entity dedup** - Two-step: first check a hardcoded alias map (e.g. "Kenneth Lay" -> "Ken Lay", email addresses -> names), then fall back to fuzzy matching with SequenceMatcher (threshold 0.88). All merges are logged with what aliases got added.
 
-In the demo corpus, `email_011` is an exact duplicate of `email_010` (same timestamp, different From address `l.kitchen` vs `louise.kitchen`), and `email_017` duplicates `email_016`. Both are caught.
+**3. Claim dedup** - Fingerprint each claim by (type, canonical_subject, canonical_object). Same fingerprint = same claim. Merge the evidence from all copies, keep the highest confidence version. If "Jeff approved the project" appears in two different emails, it becomes one claim with two evidence pointers.
 
-**2. Entity canonicalization**
+**Handling revisions** - REVISES and CANCELS claims trigger `close_claim()` on whatever they supersede, which sets `valid_to`. So the graph has:
+- Current claims (valid_to is NULL) = what's true now
+- Historical claims (valid_to is set) = what used to be true
 
-A two-step process:
+In the demo: Dec 5 go-decision -> Dec 14 pause -> Dec 18 cancellation. All three are in the graph, and retrieval shows the whole chain.
 
-1. Hard alias map: known identity pairs (`kenneth lay → Ken Lay`, `l.kitchen@enron.com → Louise Kitchen`, `WCP-1 → West Coast Power`, etc.)
-2. Fuzzy fallback: SequenceMatcher ratio > 0.88 against the set of canonical names
+## Graph storage
 
-Merges are logged with `entity_merge` events that record what aliases were added. To reverse a merge, restore the logged aliases and re-split the entity ID.
+SQLite with 4 tables: entities, claims, evidence, merges. All writes are idempotent (INSERT OR REPLACE on stable IDs), so you can rerun the pipeline without duplicating data.
 
-**3. Claim dedup**
+Time works like this:
+- `valid_from` = when the source email was sent
+- `valid_to` = when something superseded it (NULL if still current)
+- "What's true now?" -> `WHERE valid_to IS NULL`
+- "What was true on Dec 10?" -> `WHERE valid_from <= X AND (valid_to IS NULL OR valid_to > X)`
 
-Claims are fingerprinted by `(type, canonical_subject, canonical_object)`. Claims with the same fingerprint are merged: evidence from all copies is pooled, and the highest-confidence version is used as the primary. This means "Jeff approved the project" in email_001 and "Jeff gave the go-ahead" in email_007 merge into one claim if they resolve to the same triple.
-
-**Conflicts and revisions**
-
-`REVISES` and `CANCELS` claim types trigger `close_claim()` on the superseded claims, setting `valid_to` to the timestamp of the revising event. The graph therefore distinguishes:
-
-- *current* claims (`valid_to IS NULL`) — what's true now
-- *historical* claims (`valid_to SET`) — what used to be true
-
-In the demo corpus, the Dec 5 go-decision is superseded by the Dec 14 pause, which is itself superseded by the Dec 18 cancellation. All three are in the graph; retrieval surfaces the supersession chain.
-
----
-
-## Memory graph (SQLite)
-
-Four tables:
-
-```sql
-entities  — canonical records; aliases as JSON array
-claims    — typed relations; valid_from / valid_to for bi-temporal tracking
-evidence  — grounded excerpts linked to claims; char offsets into source
-merges    — audit log of all dedup/merge decisions
-```
-
-Writes are `INSERT OR REPLACE` keyed on stable IDs so re-ingestion is idempotent. All reads go through `GraphStore` methods — the schema is never queried directly from outside.
-
-**Time semantics**
-
-- `valid_from` = timestamp of the source artifact that asserted the claim
-- `valid_to` = timestamp of the artifact that superseded it (or NULL)
-- For "what's current", query `WHERE valid_to IS NULL`
-- For "what was true on date X", query `WHERE valid_from <= X AND (valid_to IS NULL OR valid_to > X)`
-
-**Permissions (conceptual)**
-
-Each evidence row stores a `source_id`. In a real deployment, `source_id` would map to an access-controlled artifact. Before returning a claim to a user, we'd filter `evidence` to only sources that user can read — and suppress the claim entirely if no accessible evidence remains.
-
-**Observability**
-
-I'd log: extraction error rates per source type, claim merge rate (spikes = schema drift), entity fanout per extraction (high = hallucination), and claims without any evidence (should be zero).
-
----
+In production you'd also want access control - each evidence row has a source_id that maps back to the original email, so you could filter by who has permission to see that source before returning claims.
 
 ## Retrieval
 
-`retrieve.py` implements a simple keyword retrieval loop:
+`retrieve.py` does keyword matching (no embeddings needed):
 
-1. Tokenize the question; remove stop words
-2. Score every entity and claim by token overlap (case-insensitive)
-3. Boost claim scores by entity match scores of their subject/object
-4. Weight by `confidence`
-5. Pull evidence for the top-K claims
-6. Surface superseded claims as explicit conflicts
+1. Tokenize the question, drop stop words
+2. Score entities and claims by how many query tokens appear in them
+3. Boost claims whose subject/object matched an entity
+4. Weight by confidence
+5. Pull evidence for top results
+6. Flag superseded claims as conflicts
 
-The returned context pack includes: matched entities with aliases, ranked claims with current/historical status, evidence excerpts with source IDs and timestamps, and a conflict list.
-
-In production the right move is dense retrieval: embed entities and claim values, then do ANN search over the vector index. Keyword is a reasonable baseline that's easy to debug and trace.
-
----
+Output is a "context pack" with matched entities, ranked claims, evidence excerpts, and any conflicts. In production you'd want vector search here, but keyword works fine as a baseline and it's easy to debug.
 
 ## Visualization
 
-`viz/index.html` is a self-contained file — no server needed. It uses D3 v7 (CDN).
+`viz/index.html` - just open it in a browser, no server needed. Uses D3 v7 from CDN.
 
-- **Graph view**: force-directed layout, node color by entity type, dashed edges for superseded claims
-- **Filters**: by entity type, by search term, toggle superseded claims on/off
-- **Entity panel**: click a node to see its aliases, attributes, related claims (with confidence bars and current/historical badges), and dedup log
-- **Claim panel**: click an edge to see the grounding evidence (source ID, timestamp, verbatim excerpt), confidence, and validity window
+What it shows:
+- Force-directed graph layout, nodes colored by entity type
+- Dashed edges for superseded claims
+- Click a node to see aliases, attributes, related claims with confidence bars
+- Click an edge to see the grounding evidence (source email, timestamp, exact quote)
+- Filter by entity type, search by name, toggle old/superseded stuff on/off
 
----
+The graph data gets baked into the HTML when `ingest.py` runs, so it's always up to date.
 
-## Adapting to Layer10's environment
+## Adapting this for Layer10
 
-Layer10's target is email, Slack/Teams, Jira/Linear, and docs. Here's what would change.
+Layer10 works with emails, Slack, Jira, docs, etc. Here's what I'd change:
 
-**Ontology additions**
+**Schema changes** - Add Thread (conversation across messages), Ticket (Jira/Linear issue), Status. The REVISES pattern maps well to Jira status transitions.
 
-Add `Thread` (a conversation across multiple messages), `Ticket` (structured issue with state machine), `Status` (enum attribute on Projects and Tickets), and `Mention` (soft reference, useful for Slack). The `REVISES` pattern maps naturally to Jira status transitions and PR reviews.
+**Cross-referencing** - When an email mentions a Linear ticket ID, that's a REFERENCES edge between a Thread and Ticket. Extract those aggressively, then hydrate from the Jira/Linear API.
 
-**Unstructured + structured fusion**
+**Source-specific extraction** - Slack messages are short and noisy, so the prompt needs different few-shot examples. Jira transitions are structured, so parse those deterministically and only use LLM on free-text fields.
 
-The key is cross-reference resolution: when an email says "see the Linear ticket" and includes a ticket ID, that's a `REFERENCES` edge between a Thread and a Ticket. In extraction, we'd train the model to emit `REFERENCES` claims aggressively and then resolve ticket IDs against the Jira/Linear API to hydrate attributes (status, assignee, priority) as structured facts.
+**Durability** - A claim becomes long-term memory when it has 2+ independent sources, confidence >= 0.85, and hasn't been retracted. Below that, it stays in a short-term "ephemeral" zone for current-sprint context only.
 
-**Extraction contract**
+**Deletions** - If a source gets deleted/redacted, check if the claim has other evidence. If not, soft-delete from retrieval but keep in the audit log.
 
-Slack messages are shorter and noisier — the extraction prompt would need few-shot examples tuned to that register. Jira descriptions are more structured, so we'd parse status transitions deterministically (not via LLM) and only use LLM for comment text and free-form fields.
+**Permissions** - Each evidence row inherits ACLs from its source system (email recipients, Slack channel membership, Jira project access). Filter evidence before returning claims, and suppress claims entirely if the user can't see any of their evidence.
 
-**Long-term memory vs ephemeral context**
-
-A claim becomes durable memory when it's corroborated by at least two independent sources, has confidence ≥ 0.85, and hasn't been retracted. Below that threshold, claims live in an "ephemeral zone" used for short-term context (current sprint, active threads) but not surfaced in historical queries. Decay: claims about ephemeral things (a Slack standup, a draft doc) have a shorter TTL than claims about structural things (org changes, project decisions).
-
-**Grounding and deletions**
-
-Every memory item must point to at least one accessible evidence source. If a source is deleted or redacted, we re-evaluate whether the claim can stand on remaining evidence. If not, it's soft-deleted from retrieval but kept in the audit log. This is why the evidence table is separate from the claim table.
-
-**Permissions**
-
-Evidence rows carry source ACLs inherited from the originating system (email recipient list, Slack channel membership, Jira project permissions). Retrieval filters evidence before returning claims. A claim that only has private evidence is invisible to users without access to those sources — even if it's structurally in the graph.
-
-**Operational reality**
-
-Scaling: extraction is embarrassingly parallel per message. Dedup at artifact level is fast (hash lookup). Entity and claim dedup are the bottleneck at scale — a blocking-key strategy (LSH or field-level sharding) keeps it manageable. Incremental updates: new messages are processed and merged without reprocessing old ones; only the affected claim fingerprints are re-evaluated. Evaluation: I'd want a labeled eval set of ~500 claims with human-annotated ground truth to track extraction precision/recall over time, and a separate set to test that revision chains are correctly ordered.
-
----
+**Scaling** - Extraction is parallel per message. Dedup bottleneck is entity/claim matching at scale - use LSH or field-level sharding. New messages get processed incrementally without reprocessing old ones.
 
 ## What I'd do with more time
 
-- **Better entity linking**: use an entity embedding model (e.g. a fine-tuned sentence-transformer) to catch aliases that pattern matching misses
-- **Temporal reasoning**: parse relative dates ("end of Q1", "by Christmas") into absolute timestamps using the email's send date as anchor
-- **Confidence calibration**: add a small held-out set to tune the confidence model — right now it's a heuristic
-- **Web UI with Flask**: replace the static HTML with a server that queries the SQLite graph live, supports free-text search, and renders diffs between claim versions
-- **Provenance diff view**: side-by-side comparison of two versions of the same claim (useful for auditing reversals)
+- Entity linking with sentence-transformers instead of just pattern matching
+- Parse relative dates ("end of Q1") into absolute timestamps using the email date
+- Calibrate confidence scores with a small labeled eval set
+- Flask web UI that queries SQLite live instead of static HTML
+- Side-by-side diff view for claim versions (useful for auditing reversals)

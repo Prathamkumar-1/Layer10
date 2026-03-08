@@ -8,6 +8,7 @@ Usage:
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from graph_store import GraphStore
 
 DB_PATH = "outputs/memory.db"
 GRAPH_JSON_PATH = "outputs/graph.json"
+VIZ_HTML_PATH = "viz/index.html"
 
 
 def load_emails(corpus_path: str) -> list[dict]:
@@ -30,14 +32,14 @@ def load_extractions(path: str) -> list[dict]:
 
 
 def build_graph(emails: list[dict], extractions: list[dict], db_path: str) -> GraphStore:
-    print("Running deduplication pass…")
+    print("Running dedup...")
     deduped = run_dedup(emails, extractions)
 
     db = GraphStore(db_path)
 
-    # ── Write entities ────────────────────────────────────────────────────────
-    print(f"Writing {len(deduped['canonical_entities'])} entities…")
-    # figure out first/last seen from evidence
+    # write entities
+    print(f"Writing {len(deduped['canonical_entities'])} entities...")
+    # figure out first/last seen
     entity_ts: dict[str, list[str]] = {}
     for extraction in extractions:
         src_ts = extraction.get("_timestamp", "")
@@ -52,8 +54,8 @@ def build_graph(emails: list[dict], extractions: list[dict], db_path: str) -> Gr
         ent["last_seen"] = timestamps[-1] if timestamps else ""
         db.upsert_entity(ent)
 
-    # ── Write claims + evidence ───────────────────────────────────────────────
-    print(f"Writing {len(deduped['merged_claims'])} claims…")
+    # write claims + evidence
+    print(f"Writing {len(deduped['merged_claims'])} claims...")
 
     # track REVISES/CANCELS to close superseded claims
     revision_pairs = []
@@ -62,8 +64,7 @@ def build_graph(emails: list[dict], extractions: list[dict], db_path: str) -> Gr
         subject_name = claim.get("subject", "")
         object_name = claim.get("object")
 
-        # need to figure out entity type for subject/object
-        # look it up in canonical entities
+        # figure out entity type for subject/object
         subject_id = _find_entity_id(subject_name, deduped["canonical_entities"])
         object_id = _find_entity_id(object_name, deduped["canonical_entities"]) if object_name else None
 
@@ -115,8 +116,8 @@ def build_graph(emails: list[dict], extractions: list[dict], db_path: str) -> Gr
             if c["type"] == "MADE_DECISION" and not c["valid_to"]:
                 db.close_claim(c["id"], valid_to)
 
-    # ── Write merge log ───────────────────────────────────────────────────────
-    print(f"Writing {len(deduped['merge_log'])} merge events…")
+    # write merge log
+    print(f"Writing {len(deduped['merge_log'])} merge events...")
     for merge in deduped["merge_log"]:
         db.log_merge(merge)
 
@@ -153,7 +154,7 @@ def main():
     # if demo mode or extractions file doesn't exist, run extraction first
     extraction_path = Path(args.extractions)
     if args.demo or not extraction_path.exists():
-        print("Running extraction in demo mode…")
+        print("Running extraction in demo mode...")
         import subprocess
         flags = ["--demo"] if args.demo else []
         subprocess.run(
@@ -170,11 +171,26 @@ def main():
     db = build_graph(emails, extractions, args.db)
 
     # export graph JSON for visualization
-    print(f"Exporting graph JSON → {GRAPH_JSON_PATH}")
+    print(f"Exporting graph JSON -> {GRAPH_JSON_PATH}")
     graph = db.export_graph_json()
     Path(GRAPH_JSON_PATH).parent.mkdir(parents=True, exist_ok=True)
     with open(GRAPH_JSON_PATH, "w") as f:
         json.dump(graph, f, indent=2)
+
+    # auto-update viz/index.html with fresh graph data
+    viz_path = Path(VIZ_HTML_PATH)
+    if viz_path.exists():
+        html = viz_path.read_text(encoding="utf-8")
+        updated = re.sub(
+            r"const GRAPH_DATA = \{.*?\};",
+            "const GRAPH_DATA = " + json.dumps(graph) + ";",
+            html,
+            count=1,
+            flags=re.DOTALL,
+        )
+        if updated != html:
+            viz_path.write_text(updated, encoding="utf-8")
+            print(f"Updated visualization: {VIZ_HTML_PATH}")
 
     db.close()
     print(f"\nDone! Memory graph at: {args.db}")

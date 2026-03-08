@@ -1,14 +1,11 @@
-"""extract.py - calls a FREE LLM to extract entities and claims from emails.
+"""extract.py - LLM extraction of entities and claims from emails.
 
-Uses the Groq API (free tier - llama-3.3-70b-versatile).
-Get a free key at: https://console.groq.com  (no credit card required)
+Uses Groq free tier (llama-3.3-70b-versatile).
+Get a key at: https://console.groq.com  (free, no credit card)
 
-Set your key:
     export GROQ_API_KEY=gsk_...
-
-Usage:
     python3 extract.py --corpus corpus/emails.json --out outputs/extracted.json
-    python3 extract.py --corpus corpus/emails.json --out outputs/extracted.json --demo
+    python3 extract.py --demo
 """
 
 import argparse
@@ -23,21 +20,19 @@ from pathlib import Path
 
 from schema import EXTRACTION_PROMPT
 
-# Groq free tier - llama3-70b is their best free model
+# groq config
 MODEL = "llama-3.3-70b-versatile"
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 MAX_TOKENS = 1500
 RETRY_LIMIT = 3
-EXTRACTION_VERSION = "v1.0"   # bump this when schema or prompt changes
+EXTRACTION_VERSION = "v1.0"
 
-
-# ── API call (Groq uses OpenAI-compatible format) ─────────────────────────────
 
 def call_llm(prompt: str, api_key: str) -> str:
     payload = json.dumps({
         "model": MODEL,
         "max_tokens": MAX_TOKENS,
-        "temperature": 0.0,       # deterministic — important for extraction
+        "temperature": 0.0,
         "messages": [{"role": "user", "content": prompt}],
     }).encode()
 
@@ -59,7 +54,7 @@ def call_llm(prompt: str, api_key: str) -> str:
             body = e.read().decode()
             if e.code == 429:
                 wait = 2 ** attempt
-                print(f"  rate limited, waiting {wait}s…", file=sys.stderr)
+                print(f"  rate limited, waiting {wait}s...", file=sys.stderr)
                 time.sleep(wait)
             else:
                 raise RuntimeError(f"API error {e.code}: {body}") from e
@@ -70,7 +65,6 @@ def call_llm(prompt: str, api_key: str) -> str:
     raise RuntimeError("Exceeded retry limit")
 
 
-# ── Output validation + repair ────────────────────────────────────────────────
 
 def parse_and_validate(raw: str, email_id: str) -> dict:
     """Try to parse JSON from the model output. Do light repair if needed."""
@@ -113,7 +107,6 @@ def parse_and_validate(raw: str, email_id: str) -> dict:
     return data
 
 
-# ── Main extraction loop ──────────────────────────────────────────────────────
 
 def extract_email(email: dict, api_key: str) -> dict:
     prompt = EXTRACTION_PROMPT.format(
@@ -136,7 +129,7 @@ def extract_email(email: dict, api_key: str) -> dict:
 def extract_corpus(emails: list[dict], api_key: str) -> list[dict]:
     results = []
     for i, email in enumerate(emails):
-        print(f"  [{i+1}/{len(emails)}] extracting {email['id']} …")
+        print(f"  [{i+1}/{len(emails)}] extracting {email['id']} ...")
         try:
             result = extract_email(email, api_key)
         except Exception as e:
@@ -149,11 +142,11 @@ def extract_corpus(emails: list[dict], api_key: str) -> list[dict]:
                 "_error": str(e),
             }
         results.append(result)
-        time.sleep(0.3)  # be polite to the API
+        time.sleep(0.3)  # rate limit
     return results
 
 
-# ── Demo mode (no API key needed) ────────────────────────────────────────────
+# pre-seeded demo data so you can run without an API key
 
 DEMO_EXTRACTIONS = [
     {
@@ -267,7 +260,7 @@ def main():
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
 
     if args.demo:
-        print("Running in demo mode — using pre-seeded extractions.")
+        print("Running in demo mode, using pre-seeded extractions.")
         results = DEMO_EXTRACTIONS
     else:
         api_key = os.environ.get("GROQ_API_KEY")
@@ -279,7 +272,7 @@ def main():
         with open(args.corpus) as f:
             emails = json.load(f)
 
-        print(f"Extracting {len(emails)} emails with {MODEL}…")
+        print(f"Extracting {len(emails)} emails with {MODEL}...")
         results = extract_corpus(emails, api_key)
 
     with open(args.out, "w") as f:
@@ -287,7 +280,7 @@ def main():
 
     total_entities = sum(len(r.get("entities", [])) for r in results)
     total_claims = sum(len(r.get("claims", [])) for r in results)
-    print(f"Done. {total_entities} entities, {total_claims} claims → {args.out}")
+    print(f"Done. {total_entities} entities, {total_claims} claims -> {args.out}")
 
 
 if __name__ == "__main__":
